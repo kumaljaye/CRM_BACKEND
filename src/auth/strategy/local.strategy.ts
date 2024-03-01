@@ -16,17 +16,14 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
         })
     }
 
-    async validate(email : string , password : string) : Promise<User> {
-        const user : User = await this.userService.findUserByEmail(email);
-        if(user && user.password == password) return user;
-        if(user == undefined) throw new UnauthorizedException("User Not Found : " + email);
-        if(user.password != password) throw new UnauthorizedException("Invalid Password");
-        if (user.status === 'rejected') {
-            throw new UnauthorizedException('Your account has been rejected. Please contact support.');
-          }
-      
-          if (user.status !== 'approved') {
-            throw new UnauthorizedException('Your account is pending approval.');
-          }
-    }
+    async validate(email: string, password: string): Promise<any> {
+        const user = await this.userService.findUserByEmail(email);
+        if (!user || user.password !== password) {
+          throw new UnauthorizedException('Invalid credentials');
+        }
+        if (user.status !== 'approved') {
+          throw new UnauthorizedException('Your account is not approved');
+        }
+        return user;
+      }
 }
